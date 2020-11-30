@@ -2,7 +2,7 @@ use yew_functional::{function_component, use_effect, use_state, use_effect_with_
 use yew::prelude::*;
 use std::rc::Rc;
 use weblog::console_log;
-use yew_state::{SharedHandle, SharedState};
+use yew_state::{SharedHandle, SharedState, SharedStateComponent};
 use wasm_bindgen_futures::spawn_local;
 
 async fn fetch(url: &str) -> anyhow::Result<String> {
@@ -22,7 +22,7 @@ pub fn model(handle: &SharedHandle<AppState>) -> Html {
     let (username, set_username) = use_state(|| "".to_owned());
     let (password, set_password) = use_state(|| "".to_owned());
 
-   /* let _onclick1 = {
+    let _onclick1 = {
         let username = Rc::clone(&username);
         let password = Rc::clone(&password);
 
@@ -40,7 +40,7 @@ pub fn model(handle: &SharedHandle<AppState>) -> Html {
                 // Error message: https://pastify-app.web.app/show/qSZxhX59IYSSzp6it88G
             })
         })
-    };*/
+    };
 
     let onclick = {
         let handle = handle.clone();
@@ -84,7 +84,7 @@ pub fn model(handle: &SharedHandle<AppState>) -> Html {
 fn application() -> Html {
     html! { <>
         <h1>{ "Hello world" }</h1>
-        <Login />
+        <SharedStateComponent<Login> />
     </>}
 }
 
