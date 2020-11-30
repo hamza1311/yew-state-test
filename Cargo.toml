@@ -1,0 +1,16 @@
+[package]
+name = "yew-state-test"
+version = "0.1.0"
+authors = ["Hamza <muhammadhamza1311@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+yew = { git = "https://github.com/yewstack/yew/" }
+wasm-bindgen-futures = "0.4"
+yew-functional = { git = "https://github.com/yewstack/yew/" }
+yew-state = { git = "https://github.com/hamza1311/yew-state/", branch = "master-yew" }
+reqwest = "0.10"
+anyhow = "1.0"
+weblog = "0.4.0-beta.1"
