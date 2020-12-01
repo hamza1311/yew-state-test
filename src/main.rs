@@ -12,9 +12,10 @@ async fn fetch(url: &str) -> anyhow::Result<String> {
         .await?)
 }
 
-#[derive(Clone, PartialEq, Default)]
+#[derive(Clone, PartialEq, Default, Debug)]
 pub struct AppState {
     token: Option<String>,
+    username: Option<String>,
 }
 
 #[function_component(Login)]
@@ -22,7 +23,7 @@ pub fn model(handle: &SharedHandle<AppState>) -> Html {
     let (username, set_username) = use_state(|| "".to_owned());
     let (password, set_password) = use_state(|| "".to_owned());
 
-    let _onclick1 = {
+    /*let _onclick1 = {
         let username = Rc::clone(&username);
         let password = Rc::clone(&password);
 
@@ -40,19 +41,29 @@ pub fn model(handle: &SharedHandle<AppState>) -> Html {
                 // Error message: https://pastify-app.web.app/show/qSZxhX59IYSSzp6it88G
             })
         })
-    };
+    };*/
 
     let onclick = {
+        let username = Rc::clone(&username);
+        let password = Rc::clone(&password);
         let handle = handle.clone();
 
-        Callback::from(|e| {
+        Callback::from(move |e| {
+            let username = Rc::clone(&username);
+            let password = Rc::clone(&password);
+            let handle_callback = handle.reduce_callback_with(|state, (token, username)| {
+                state.token = Some(token);
+                state.username = Some(username);
+                console_log!("set", format!("{:#?}", state))
+            });
             spawn_local(async move {
                 // pretend this response is a token
                 // not using username, password in format! to provide a better error message
-                let resp = fetch(&format!("http:://localhost:9090/api/hello/test")).await
-                    .unwrap();
+                // let resp = fetch(&format!("http://localhost:9090/api/hello/{}-{}", username, password)).await
+                //     .unwrap();
+                let resp = "bruh".to_string(); // we use bruh so we don't need the api
 
-                handle.reduce(|s| s.token = Some(resp))
+                handle_callback.emit((resp, (*username).clone()));
                 // here we don't get any issues with lifetimes but a clone is required
                 // but here we have issues with Fn vs FnOnce
                 // Error message: https://pastify-app.web.app/show/zgZT6yAKFyHjhu2Uc7uD
@@ -80,11 +91,27 @@ pub fn model(handle: &SharedHandle<AppState>) -> Html {
     </>}
 }
 
+#[function_component(ShowData)]
+fn show_data(handle: &SharedHandle<AppState>) -> Html {
+    let (show, set_show) = use_state(|| false);
+    html! {<>
+        <button onclick=Callback::from(move |_| set_show(true))>{"show"}</button>
+        {if *show {
+            html! { <p>{ get_username(&handle) }</p> }
+        } else {html! ()}}
+    </>}
+}
+
+fn get_username(handle: &SharedHandle<AppState>) -> &str {
+    &handle.state().username.as_ref().unwrap() // this panics pan
+}
+
 #[function_component(Application)]
 fn application() -> Html {
     html! { <>
         <h1>{ "Hello world" }</h1>
         <SharedStateComponent<Login> />
+        <ShowData />
     </>}
 }
 
